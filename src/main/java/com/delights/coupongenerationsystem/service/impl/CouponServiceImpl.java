@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,40 +26,45 @@ public class CouponServiceImpl implements CouponService {
     private final UserRepository userRepository;
 
     @Override
-    public ApiResponse generateCoupon(RetailerCouponRequest retailerCouponRequest, UserPrincipal customUserDetails) {
+    public CompletableFuture<ApiResponse> generateCoupon(RetailerCouponRequest retailerCouponRequest, UserPrincipal customUserDetails) {
         // Random alphanumeric
         // Random UUID
         // "02364d17-6379-4ee2-b3e9-c9eecd352614"
         // 02364d1763794ee2b3e9c9eecd352614
-        String tempCouponCode = UUID.randomUUID().toString().replaceAll("-", "");
-        String couponCode = tempCouponCode.substring(0, 8);
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        return CompletableFuture.supplyAsync(()->{
 
-        User loggedInRetailer = userRepository.findById(customUserDetails.getId())
-                .orElseThrow(()->new AppException("Retailer doesn't exist"));
+            String tempCouponCode = UUID.randomUUID().toString().replaceAll("-", "");
+            String couponCode = tempCouponCode.substring(0, 8);
 
-        // Build the data to be persisted/stored in database
-        Coupon couponObject = Coupon.builder()
-                .couponName(retailerCouponRequest.getCouponName())
-                .discount(retailerCouponRequest.getDiscount())
-                .expiration(retailerCouponRequest.getExpiration())
-                .couponCode(couponCode)
-                .retailer(loggedInRetailer)
-                .build();
+            User loggedInRetailer = userRepository.findById(customUserDetails.getId())
+                    .orElseThrow(()->new AppException("Retailer doesn't exist"));
 
-        Coupon newCouponObject = couponRepository.save(couponObject);
-        RetailerCouponResponse retailerCouponResponse = RetailerCouponResponse.builder()
-                .couponId(newCouponObject.getId())
-                .couponCode(newCouponObject.getCouponCode())
-                .couponName(newCouponObject.getCouponName())
-                .discount(newCouponObject.getDiscount())
-                .expiration(newCouponObject.getExpiration().toString())
-                .createdAt(newCouponObject.getCreatedAt().toString())
-                .build();
+            // Build the data to be persisted/stored in database
+            Coupon couponObject = Coupon.builder()
+                    .couponName(retailerCouponRequest.getCouponName())
+                    .discount(retailerCouponRequest.getDiscount())
+                    .expiration(retailerCouponRequest.getExpiration())
+                    .couponCode(couponCode)
+                    .retailer(loggedInRetailer)
+                    .build();
 
-        return ApiResponse.builder()
-                .success(true)
-                .message("Coupon generated Successfully")
-                .data(retailerCouponResponse)
-                .build();
+            Coupon newCouponObject = couponRepository.save(couponObject);
+            RetailerCouponResponse retailerCouponResponse = RetailerCouponResponse.builder()
+                    .couponId(newCouponObject.getId())
+                    .couponCode(newCouponObject.getCouponCode())
+                    .couponName(newCouponObject.getCouponName())
+                    .discount(newCouponObject.getDiscount())
+                    .expiration(newCouponObject.getExpiration().toString())
+                    .createdAt(newCouponObject.getCreatedAt().toString())
+                    .build();
+
+            return ApiResponse.builder()
+                    .success(true)
+                    .message("Coupon generated Successfully")
+                    .data(retailerCouponResponse)
+                    .build();
+        }, executorService);
+
     }
 }

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.CompletableFuture;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/")
@@ -21,7 +23,7 @@ public class RetailerController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_RETAILER')")
     @PostMapping("coupons")
-    public ResponseEntity<ApiResponse> requestCoupon(
+    public ResponseEntity<CompletableFuture<ApiResponse>> requestCoupon(
             @CurrentUser UserPrincipal currentUser,
             @RequestBody RetailerCouponRequest retailerCouponRequest) {
         return ResponseEntity.ok().body(couponService.generateCoupon(retailerCouponRequest, currentUser));
