@@ -16,5 +16,4 @@ public class RetailerCouponRequest {
     private String couponName;
     private LocalDateTime expiration;
     private double discount;
-    private String couponCode;
 }

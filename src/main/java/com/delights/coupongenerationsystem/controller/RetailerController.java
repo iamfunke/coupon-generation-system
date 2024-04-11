@@ -6,6 +6,7 @@ import com.delights.coupongenerationsystem.security.CurrentUser;
 import com.delights.coupongenerationsystem.security.UserPrincipal;
 import com.delights.coupongenerationsystem.service.impl.CouponServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,9 +24,19 @@ public class RetailerController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_RETAILER')")
     @PostMapping("coupons")
-    public ResponseEntity<CompletableFuture<ApiResponse>> requestCoupon(
+    public CompletableFuture<ResponseEntity<ApiResponse>> requestCoupon(
             @CurrentUser UserPrincipal currentUser,
             @RequestBody RetailerCouponRequest retailerCouponRequest) {
-        return ResponseEntity.ok().body(couponService.generateCoupon(retailerCouponRequest, currentUser));
+        return couponService.generateCoupon(retailerCouponRequest, currentUser)
+                .thenApply(apiResponse -> ResponseEntity.ok().body(apiResponse))
+                .exceptionally(ex -> {
+                    // Handle exception and return an error response
+                    ApiResponse errorResponse = ApiResponse.builder()
+                            .success(false)
+                            .message("Coupon generation failed: " + ex.getMessage())
+                            .build();
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+                });
     }
+
 }

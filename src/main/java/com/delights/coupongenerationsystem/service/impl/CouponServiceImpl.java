@@ -14,6 +14,7 @@ import com.delights.coupongenerationsystem.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -27,44 +28,63 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public CompletableFuture<ApiResponse> generateCoupon(RetailerCouponRequest retailerCouponRequest, UserPrincipal customUserDetails) {
-        // Random alphanumeric
-        // Random UUID
-        // "02364d17-6379-4ee2-b3e9-c9eecd352614"
-        // 02364d1763794ee2b3e9c9eecd352614
-        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        return CompletableFuture.supplyAsync(()->{
+       ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        return CompletableFuture.supplyAsync(() -> {
+            try {
 
-            String tempCouponCode = UUID.randomUUID().toString().replaceAll("-", "");
-            String couponCode = tempCouponCode.substring(0, 8);
+                LocalDateTime expirationDate = retailerCouponRequest.getExpiration();
+                LocalDateTime now = LocalDateTime.now();
+                if (expirationDate.isBefore(now)) {
+                    throw new IllegalArgumentException("Expiration date must be in the future");
+                }
 
-            User loggedInRetailer = userRepository.findById(customUserDetails.getId())
-                    .orElseThrow(()->new AppException("Retailer doesn't exist"));
+                String tempCouponCode = UUID.randomUUID().toString().replaceAll("-", "");
+                String couponCode = tempCouponCode.substring(0, 8);
 
-            // Build the data to be persisted/stored in database
-            Coupon couponObject = Coupon.builder()
-                    .couponName(retailerCouponRequest.getCouponName())
-                    .discount(retailerCouponRequest.getDiscount())
-                    .expiration(retailerCouponRequest.getExpiration())
-                    .couponCode(couponCode)
-                    .retailer(loggedInRetailer)
-                    .build();
+                User loggedInRetailer = userRepository.findById(customUserDetails.getId())
+                        .orElseThrow(() -> new AppException("Retailer doesn't exist"));
 
-            Coupon newCouponObject = couponRepository.save(couponObject);
-            RetailerCouponResponse retailerCouponResponse = RetailerCouponResponse.builder()
-                    .couponId(newCouponObject.getId())
-                    .couponCode(newCouponObject.getCouponCode())
-                    .couponName(newCouponObject.getCouponName())
-                    .discount(newCouponObject.getDiscount())
-                    .expiration(newCouponObject.getExpiration().toString())
-                    .createdAt(newCouponObject.getCreatedAt().toString())
-                    .build();
+                // Build the data to be stored in the database
+                Coupon couponObject = Coupon.builder()
+                        .couponName(retailerCouponRequest.getCouponName())
+                        .discount(retailerCouponRequest.getDiscount())
+                        .expiration(retailerCouponRequest.getExpiration())
+                        .couponCode(couponCode)
+                        .retailer(loggedInRetailer)
+                        .build();
 
+                // Storing in DB
+                Coupon newCouponObject = couponRepository.save(couponObject);
+                // Structuring response
+                RetailerCouponResponse retailerCouponResponse = RetailerCouponResponse.builder()
+                        .couponId(newCouponObject.getId())
+                        .couponCode(newCouponObject.getCouponCode())
+                        .couponName(newCouponObject.getCouponName())
+                        .discount(newCouponObject.getDiscount())
+                        .expiration(newCouponObject.getExpiration().toString())
+                        .createdAt(newCouponObject.getCreatedAt().toString())
+                        .build();
+
+                ApiResponse apiResponse = ApiResponse.builder()
+                        .success(true)
+                        .message("Coupon generated Successfully")
+                        .data(retailerCouponResponse)
+                        .build();
+
+                return apiResponse; // Return the ApiResponse
+            } catch (Exception ex) {
+                // Handle exception and return an error response
+                return ApiResponse.builder()
+                        .success(false)
+                        .message("Coupon generation failed: " + ex.getMessage())
+                        .build();
+            }
+        }, executorService).exceptionally(ex -> {
+            // Handle exception and return an error response
             return ApiResponse.builder()
-                    .success(true)
-                    .message("Coupon generated Successfully")
-                    .data(retailerCouponResponse)
+                    .success(false)
+                    .message("Coupon generation failed: " + ex.getMessage())
                     .build();
-        }, executorService);
-
+        });
     }
 }
