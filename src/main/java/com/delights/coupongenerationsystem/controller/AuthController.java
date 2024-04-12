@@ -22,11 +22,27 @@ public class AuthController {
 
     @PostMapping("login")
     public ResponseEntity<ApiResponse> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok().body(userService.authenticateUser(loginRequest));
+        try {
+            return ResponseEntity.ok().body(userService.authenticateUser(loginRequest));
+        }catch (Exception ex){
+            ApiResponse errorResponse = ApiResponse.builder()
+                    .success(false)
+                    .message("Invalid Login")
+                    .build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
     }
 
     @PostMapping("register")
     public ResponseEntity<ApiResponse> registerUser(@RequestBody SignUpRequest signUpRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(signUpRequest));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(signUpRequest));
+        } catch (Exception ex){
+            ApiResponse errorResponse = ApiResponse.builder()
+                    .success(false)
+                    .message(ex.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
     }
 }

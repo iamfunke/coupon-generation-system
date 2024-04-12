@@ -1,5 +1,6 @@
 package com.delights.coupongenerationsystem.repository;
 
+import com.delights.coupongenerationsystem.model.Coupon;
 import com.delights.coupongenerationsystem.model.RoleName;
 import com.delights.coupongenerationsystem.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

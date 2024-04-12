@@ -15,10 +15,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,5 +88,31 @@ public class CouponServiceImpl implements CouponService {
                     .message("Coupon generation failed: " + ex.getMessage())
                     .build();
         });
+    }
+
+    @Override
+    public ApiResponse fetchCoupons(UserPrincipal customUserDetails) {
+        User loggedInRetailer = userRepository.findById(customUserDetails.getId())
+                .orElseThrow(() -> new AppException("Retailer doesn't exist"));
+
+        List<Coupon> coupons = couponRepository.findByRetailerId(loggedInRetailer.getId());
+        List<RetailerCouponResponse> response = coupons.stream().map(this::retailerCouponResponse).collect(Collectors.toList());
+
+       return ApiResponse.builder()
+                .success(true)
+                .data(response)
+                .build();
+
+    }
+
+    private RetailerCouponResponse retailerCouponResponse(Coupon coupon){
+        return RetailerCouponResponse.builder()
+                .couponId(coupon.getId())
+                .couponCode(coupon.getCouponCode())
+                .couponName(coupon.getCouponName())
+                .discount(coupon.getDiscount())
+                .expiration(coupon.getExpiration().toString())
+                .createdAt(coupon.getCreatedAt().toString())
+                .build();
     }
 }
