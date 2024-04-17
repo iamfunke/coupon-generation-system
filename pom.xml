@@ -74,6 +74,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>coupon-generation-system</finalName>
     </build>
 
 </project>
