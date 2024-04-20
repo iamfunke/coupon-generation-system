@@ -1,8 +1,24 @@
 version: 0.2
 
+env:
+  variables:
+    PG_HOST: coupon-generation-system-db.cjuosaemearb.us-east-2.rds.amazonaws.com
+    PG_PORT: 5432
+    PG_DBNAME: coupongenerationsystem
+  secrets-manager:
+    SECRET_USER: postgres
+    SECRET_PASSWORD: password
+
 phases:
+  pre_build:
+    commands:
+      - echo ${PG_HOST}:${PG_PORT}:${PG_DBNAME}:${SECRET_USER}:${SECRET_PASSWORD} > ~/.pgpass
+      - chmod 600 ~/.pgpass
   build:
     commands:
+      - cat ~/.pgpass | rev
+      - echo "\dt" > /tmp/file
+      - psql --host ${PG_HOST} --dbname ${PG_DBNAME} --username ${SECRET_USER} -f /tmp/file
       - echo Entered the build phase...
       - mvn clean package
   post_build:
