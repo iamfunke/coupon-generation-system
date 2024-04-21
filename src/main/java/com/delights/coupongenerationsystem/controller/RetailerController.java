@@ -44,7 +44,7 @@ public class RetailerController {
         } catch (Exception ex){
             ApiResponse errorResponse = ApiResponse.builder()
                     .success(false)
-                    .message("Unauthorised to access this resource ")
+                    .message("Unauthorised to access this resource")
                     .build();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
