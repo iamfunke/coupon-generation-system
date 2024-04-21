@@ -18,6 +18,7 @@ import com.delights.coupongenerationsystem.security.JwtTokenProvider;
 import com.delights.coupongenerationsystem.security.UserPrincipal;
 import com.delights.coupongenerationsystem.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,14 +34,17 @@ import java.util.stream.Collectors;
 
 
 @Service
-@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider tokenProvider;
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtTokenProvider tokenProvider;
 
     @Override
     public ApiResponse authenticateUser(LoginRequest loginRequest) {
