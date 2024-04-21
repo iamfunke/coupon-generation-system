@@ -27,7 +27,7 @@ public class AuthController {
         }catch (Exception ex){
             ApiResponse errorResponse = ApiResponse.builder()
                     .success(false)
-                    .message("Invalid Login")
+                    .message("Invalid Login.")
                     .build();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
