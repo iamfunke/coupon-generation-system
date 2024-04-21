@@ -24,7 +24,7 @@ public class AdminController {
         }catch (Exception e){
             ApiResponse errorResponse = ApiResponse.builder()
                     .success(false)
-                    .message("Unfortunately, you are unauthorised to access this resource.")
+                    .message("Uauthorised to access this resource.")
                     .build();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
