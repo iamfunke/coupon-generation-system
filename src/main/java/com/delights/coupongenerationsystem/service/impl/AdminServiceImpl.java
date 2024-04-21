@@ -2,18 +2,19 @@ package com.delights.coupongenerationsystem.service.impl;
 
 import com.delights.coupongenerationsystem.dto.response.ApiResponse;
 import com.delights.coupongenerationsystem.model.User;
+import com.delights.coupongenerationsystem.repository.CouponRepository;
+import com.delights.coupongenerationsystem.repository.RoleRepository;
 import com.delights.coupongenerationsystem.repository.UserRepository;
 import com.delights.coupongenerationsystem.service.AdminService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
-    @Autowired
-    private UserRepository userRepository;
-
+    private final UserRepository userRepository;
 
     @Override
     public ApiResponse getAllRetailers() {

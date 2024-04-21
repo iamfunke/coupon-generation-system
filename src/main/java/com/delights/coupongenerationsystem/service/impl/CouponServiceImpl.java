@@ -4,13 +4,14 @@ import com.delights.coupongenerationsystem.dto.request.RetailerCouponRequest;
 import com.delights.coupongenerationsystem.dto.response.ApiResponse;
 import com.delights.coupongenerationsystem.dto.response.RetailerCouponResponse;
 import com.delights.coupongenerationsystem.exception.AppException;
+import com.delights.coupongenerationsystem.exception.ResourceNotFoundException;
 import com.delights.coupongenerationsystem.model.Coupon;
 import com.delights.coupongenerationsystem.model.User;
 import com.delights.coupongenerationsystem.repository.CouponRepository;
 import com.delights.coupongenerationsystem.repository.UserRepository;
 import com.delights.coupongenerationsystem.security.UserPrincipal;
 import com.delights.coupongenerationsystem.service.CouponService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,11 +23,10 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CouponServiceImpl implements CouponService {
-    @Autowired
-    private CouponRepository couponRepository;
-    @Autowired
-    private UserRepository userRepository;
+    private final CouponRepository couponRepository;
+    private final UserRepository userRepository;
 
     @Override
     public CompletableFuture<ApiResponse> generateCoupon(RetailerCouponRequest retailerCouponRequest, UserPrincipal customUserDetails) {
