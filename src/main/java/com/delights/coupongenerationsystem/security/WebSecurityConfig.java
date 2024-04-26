@@ -84,6 +84,8 @@ public class WebSecurityConfig {
                         .permitAll()
                     .antMatchers("/api/v1/users/register/**")
                         .permitAll()
+                    .antMatchers("/**")
+                        .permitAll()
                     .anyRequest()
                         .authenticated();
 
