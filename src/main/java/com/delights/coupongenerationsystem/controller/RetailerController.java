@@ -37,6 +37,20 @@ public class RetailerController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_RETAILER')")
+    @GetMapping("coupons/{couponId}")
+    public ResponseEntity<ApiResponse> fetchCoupon(@CurrentUser UserPrincipal currentUser, @PathVariable Long couponId){
+        try{
+            return ResponseEntity.status(HttpStatus.CREATED).body(couponService.fetchCoupon(couponId, currentUser));
+        } catch (Exception ex){
+            ApiResponse errorResponse = ApiResponse.builder()
+                    .success(false)
+                    .message("Unauthorised to access this resource")
+                    .build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_RETAILER')")
     @GetMapping("coupons")
     public ResponseEntity<ApiResponse> fetchCoupons(@CurrentUser UserPrincipal currentUser){
         try{

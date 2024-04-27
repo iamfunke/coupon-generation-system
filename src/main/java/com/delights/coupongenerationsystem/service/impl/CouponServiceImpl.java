@@ -105,6 +105,27 @@ public class CouponServiceImpl implements CouponService {
 
     }
 
+    @Override
+    public ApiResponse fetchCoupon(Long couponId, UserPrincipal customUserDetails) {
+        User loggedInRetailer = userRepository.findById(customUserDetails.getId())
+                .orElseThrow(() -> new AppException("Retailer doesn't exist"));
+
+        Coupon coupon = couponRepository.findByIdAndRetailerId(loggedInRetailer.getId(), couponId);
+        RetailerCouponResponse retailerCouponResponse = RetailerCouponResponse.builder()
+                .couponId(coupon.getId())
+                .couponCode(coupon.getCouponCode())
+                .couponName(coupon.getCouponName())
+                .discount(coupon.getDiscount())
+                .expiration(coupon.getExpiration().toString())
+                .createdAt(coupon.getCreatedAt().toString())
+                .build();
+
+        return ApiResponse.builder()
+                .success(true)
+                .data(retailerCouponResponse)
+                .build();
+    }
+
     private RetailerCouponResponse retailerCouponResponse(Coupon coupon){
         return RetailerCouponResponse.builder()
                 .couponId(coupon.getId())

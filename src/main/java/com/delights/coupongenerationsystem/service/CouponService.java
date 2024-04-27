@@ -10,4 +10,6 @@ import java.util.concurrent.CompletableFuture;
 public interface CouponService {
     CompletableFuture<ApiResponse> generateCoupon(RetailerCouponRequest retailerCouponRequest, UserPrincipal customUserDetails);
     ApiResponse fetchCoupons(UserPrincipal customUserDetails);
+
+    ApiResponse fetchCoupon(Long couponId, UserPrincipal customUserDetails);
 }
