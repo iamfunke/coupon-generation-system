@@ -30,7 +30,7 @@ public class SwaggerConfig {
                 .title("Cloud Based API-Driven Coupon Generation System")
                 .description("This page shows all the RESTful APIs for Coupon Generation System")
                 .version("1.0-SNAPSHOT")
-                .contact(new Contact("Funke Abolade", "https:funkeabolade.com", "agboluajevictoria@yahoo.com"))
+                .contact(new Contact("Funke Abolade", "https://www.linkedin.com/in/funke-abolade-a50682231", "agboluajevictoria@yahoo.com"))
                 .build();
     }
 }
