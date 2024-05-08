@@ -128,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
 
         return ApiResponse.builder()
                 .success(true)
-                .message("User registered successfully.")
+                .message("User successfully registered.")
                 .data(userObject)
                 .build();
     }
