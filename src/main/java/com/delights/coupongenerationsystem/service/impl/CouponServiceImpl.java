@@ -110,7 +110,7 @@ public class CouponServiceImpl implements CouponService {
         User loggedInRetailer = userRepository.findById(customUserDetails.getId())
                 .orElseThrow(() -> new AppException("Retailer doesn't exist"));
 
-        Coupon coupon = couponRepository.findByIdAndRetailerId(loggedInRetailer.getId(), couponId);
+        Coupon coupon = couponRepository.findByIdAndRetailerId(couponId,loggedInRetailer.getId());
         RetailerCouponResponse retailerCouponResponse = RetailerCouponResponse.builder()
                 .couponId(coupon.getId())
                 .couponCode(coupon.getCouponCode())
